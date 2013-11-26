@@ -1,7 +1,13 @@
 package com.CSJE.Sprouts;
 
+import java.util.LinkedList;
+
+import com.CSJE.graphObjects.Region;
+
+
 public class SproutGame {
 	
+	LinkedList<Region> regions;
 	
 	public SproutGame(String game)
 	{
