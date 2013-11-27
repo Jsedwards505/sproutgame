@@ -1,7 +1,9 @@
 package com.CSJE.Sprouts;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 
+import com.CSJE.Datastructures.Collector;
 import com.CSJE.graphObjects.Boundary;
 import com.CSJE.graphObjects.Dot;
 import com.CSJE.graphObjects.Region;
@@ -10,10 +12,12 @@ import com.CSJE.graphObjects.Region;
 public class SproutGame {
 	
 	private SproutGame parent;
-	private LinkedList<SproutGame> children;
-	
-	private LinkedList<Region> regions;
+	private LinkedList<SproutGame> children = new LinkedList<SproutGame>();
+
+	private LinkedList<Region> regions = new LinkedList<Region>();
 	private String stateString;
+	private Collector<Dot> dotOccurances = new Collector<Dot>();
+	private HashSet<Dot> freeDots = new HashSet<Dot>(); 
 	
 	public SproutGame(String game, SproutGame parent)
 	{
@@ -92,9 +96,13 @@ public class SproutGame {
 		  else if(game.charAt(i)==','); //do nothing
 		  else
 		  {
-			activeBoundary.addDot(new Dot(game.charAt(i)));
+			Dot d = new Dot(game.charAt(i));
+			dotOccurances.add(d); //add new dot to tally
+			//add it to freedots
+			if(dotOccurances.getCount(d)<3) freeDots.add(d);
+			else freeDots.remove(d); //unless it's full.
+			activeBoundary.addDot(d);
 		  }
-		   
 		}
 	}
 
