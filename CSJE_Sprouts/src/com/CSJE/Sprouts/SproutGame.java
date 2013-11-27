@@ -9,18 +9,28 @@ import com.CSJE.graphObjects.Region;
 
 public class SproutGame {
 	
-	SproutGame parent;
-	LinkedList<SproutGame> children;
+	private SproutGame parent;
+	private LinkedList<SproutGame> children;
 	
-	LinkedList<Region> regions;
-	String generatingString;
+	private LinkedList<Region> regions;
+	private String generatingString;
 	
-	public SproutGame(String game)
+	public SproutGame(String game, SproutGame parent)
 	{
+		this.parent = parent;
 		generatingString = game;
 		buildState(game);		
+		generateChildren();
 	}
 
+	private void generateChildren() {
+		//This method will use the rules of the game to create possible children states
+		//given a string of the new state (which this function will build)
+		//children.add(childString); will build the child state and Add it.
+		
+	}
+
+	//parses string input into objects
 	private void buildState(String game) {
 		
 		Region activeRegion = new Region();
@@ -52,6 +62,12 @@ public class SproutGame {
 		}
 	}
 
+	public String toString()
+	{
+		return generatingString;
+		
+	}
+	
 	/**
 	 * @param args - String defining a game state.
 	 */
@@ -64,7 +80,7 @@ public class SproutGame {
 			return; 
 		}
 		
-		SproutGame game = new SproutGame(args[0]);
+		SproutGame game = new SproutGame(args[0],null);
 	}
 	
 	//validates the input to the program (not done?)
