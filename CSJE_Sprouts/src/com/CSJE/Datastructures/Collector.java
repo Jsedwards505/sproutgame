@@ -13,7 +13,7 @@ public class Collector<T> {
 	}
 	public void add(T o)
 	{
-		if(!collection.containsKey(0)) collection.put(o, new Integer(1));
+		if(!collection.containsKey(o)) collection.put(o, new Integer(1));
 		else collection.put(o, collection.get(o).intValue()+1);
 	}
 }
