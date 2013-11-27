@@ -25,42 +25,37 @@ public class SproutGame {
 
 	private void generateChildren() {
 		//This method will use the rules of the game to create possible children states
-		//given a string of the new state (which this function will build)
-		//children.add(new SproutGame(childString)); will build the child state and Add it.
-        
-		//the first 3 iterate over every dot in the game space
+	
+		//the following loops will attempt to wire every dot to every other dot in the same region.
 		for(Region r:regions)
 		{
-			for(Boundary b : r.getBoundaries())
+			for(Boundary b1 : r.getBoundaries())
 			{
-				for(Dot d : b.getDots())
+				for(Dot d1 : b1.getDots())
 				{
-					//the second 3 loops iterate over ever dot in the game space to select every partner
-					for(Region s:regions)
+                  //the second 3 loops iterate over ever dot in the game space to select every partner
+				  for(Boundary b2 : r.getBoundaries())
+				  {
+				    for(Dot d2 : b2.getDots())
 					{
-						for(Boundary c : r.getBoundaries())
-						{
-							for(Dot e : b.getDots())
-							{
-								String childString = makeChildString(r,b,d,s,c,e);
-								if(!isomorph(childString)) children.add(new SproutGame(childString,this));
-							}
-							
-						}
-				     }
-				
-			     }			
-		      }
-		 }
-	}
-
+					  String childString = makeChildString(r,b1,d1,b2,d2);
+					  //if this new gamestate is not an isomoprh, add it to children.
+					  if(!isomorph(childString)) children.add(new SproutGame(childString,this));
+       				}
+     			}
+		     }	
+	      }
+	 }
+}
+    //Chris: Implement this?
 	private boolean isomorph(String childString) {
-		//determine if things are isomorphic?
+		//determine if things are isomorphs in some clever way?
+		//access to children if needed (like to compare a new gamestate with an old one...)
+		//if childstring in children, don't make it kind of thing.
 		return false;
 	}
 
-	private String makeChildString(Region r1, Boundary b1, Dot d1, Region r2,
-			Boundary b2, Dot d2)
+	private String makeChildString(Region r1, Boundary b1, Dot d1, Boundary b2, Dot d2)
 	{
 		String childString = null;
 		//magic. Build the child strings.
