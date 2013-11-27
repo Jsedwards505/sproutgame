@@ -3,7 +3,7 @@ package com.CSJE.graphObjects;
 import java.util.LinkedList;
 
 public class Region {
-	LinkedList<Boundary> boundaries;
+	private LinkedList<Boundary> boundaries;
 	
 	public Region() 
 	{
@@ -13,6 +13,11 @@ public class Region {
 	public void addBoundary(Boundary bound)
 	{
 		boundaries.add(bound);
+	}
+	
+	public LinkedList<Boundary> getBoundaries()
+	{
+		return boundaries;
 	}
 
 }

@@ -3,7 +3,7 @@ package com.CSJE.graphObjects;
 import java.util.LinkedList;
 
 public class Boundary {
-	LinkedList<Dot> dots;
+	private LinkedList<Dot> dots;
 	
 	public Boundary()
 	{
@@ -12,6 +12,10 @@ public class Boundary {
 	public void addDot(Dot dot)
 	{
 		dots.add(dot);
+	}
+	public LinkedList<Dot> getDots()
+	{
+		return dots;
 	}
 
 }

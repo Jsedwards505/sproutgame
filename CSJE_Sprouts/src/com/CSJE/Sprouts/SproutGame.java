@@ -26,8 +26,45 @@ public class SproutGame {
 	private void generateChildren() {
 		//This method will use the rules of the game to create possible children states
 		//given a string of the new state (which this function will build)
-		//children.add(childString); will build the child state and Add it.
-		
+		//children.add(new SproutGame(childString)); will build the child state and Add it.
+        
+		//the first 3 iterate over every dot in the game space
+		for(Region r:regions)
+		{
+			for(Boundary b : r.getBoundaries())
+			{
+				for(Dot d : b.getDots())
+				{
+					//the second 3 loops iterate over ever dot in the game space to select every partner
+					for(Region s:regions)
+					{
+						for(Boundary c : r.getBoundaries())
+						{
+							for(Dot e : b.getDots())
+							{
+								String childString = makeChildString(r,b,d,s,c,e);
+								if(!isomorph(childString)) children.add(new SproutGame(childString,this));
+							}
+							
+						}
+				     }
+				
+			     }			
+		      }
+		 }
+	}
+
+	private boolean isomorph(String childString) {
+		//determine if things are isomorphic?
+		return false;
+	}
+
+	private String makeChildString(Region r1, Boundary b1, Dot d1, Region r2,
+			Boundary b2, Dot d2)
+	{
+		String childString = null;
+		//magic. Build the child strings.
+		return childString;
 	}
 
 	//parses string input into objects
