@@ -13,12 +13,12 @@ public class SproutGame {
 	private LinkedList<SproutGame> children;
 	
 	private LinkedList<Region> regions;
-	private String generatingString;
+	private String stateString;
 	
 	public SproutGame(String game, SproutGame parent)
 	{
 		this.parent = parent;
-		generatingString = game;
+		stateString = game;
 		buildState(game);		
 		generateChildren();
 	}
@@ -59,6 +59,10 @@ public class SproutGame {
 	{
 		String childString = null;
 		//magic. Build the child strings.
+		if(b1==b2) //if connecting dots in the same boundary
+		{
+			
+		}
 		return childString;
 	}
 
@@ -96,7 +100,7 @@ public class SproutGame {
 
 	public String toString()
 	{
-		return generatingString;
+		return stateString;
 		
 	}
 	
