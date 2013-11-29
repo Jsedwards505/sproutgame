@@ -1,8 +1,9 @@
 package com.CSJE.graphObjects;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Region {
+public class Region implements Iterable<Boundary> {
 	private LinkedList<Boundary> boundaries;
 	
 	public Region() 
@@ -18,6 +19,11 @@ public class Region {
 	public LinkedList<Boundary> getBoundaries()
 	{
 		return boundaries;
+	}
+
+	@Override
+	public Iterator iterator() {
+		return boundaries.iterator();
 	}
 
 }

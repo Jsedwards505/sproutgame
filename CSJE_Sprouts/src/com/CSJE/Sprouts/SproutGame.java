@@ -24,7 +24,7 @@ public class SproutGame {
 		this.parent = parent;
 		stateString = game;
 		buildState(game);		
-		generateChildren();
+//		generateChildren();
 	}
 
 	private void generateChildren() {
@@ -35,12 +35,12 @@ public class SproutGame {
 		{
 			for(Boundary b1 : r.getBoundaries())
 			{
-				for(Dot d1 : b1.getDots())
+				for(Dot d1 : b1)
 				{
                   //the second 3 loops iterate over ever dot in the game space to select every partner
 				  for(Boundary b2 : r.getBoundaries())
 				  {
-				    for(Dot d2 : b2.getDots())
+				    for(Dot d2 : b2)
 					{
 					  String childString = makeChildString(r,b1,d1,b2,d2);
 					  //if this new gamestate is not an isomoprh, add it to children.
@@ -67,7 +67,23 @@ public class SproutGame {
 		{
 			
 		}
+		else //connecting dots in another boundary.
+		{
+			
+		}
 		return childString;
+	}
+	
+	private void insertAfter(Boundary b, Dot insert, Dot after)
+	{
+		for(int i = 0; i<b.getLength(); i++)
+		{
+			if(b.get(i)==after)
+			{
+				b.insert(i, insert);
+			}
+			
+		}
 	}
 
 	//parses string input into objects
@@ -114,17 +130,29 @@ public class SproutGame {
 	
 	/**
 	 * @param args - String defining a game state.
+	 * @throws CloneNotSupportedException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws CloneNotSupportedException {
 		//This method will validate the args and build a new SproutsGame object
 		//with those arguments.
 		if(!validGame(args)) //if the input is invalid, blow up.
 		{
 			System.out.println("Invalid Input");
-			return; 
+//			return; 
 		}
 		
-		SproutGame game = new SproutGame(args[0],null);
+		SproutGame game = new SproutGame("A,B;C,D/E,F", null); //(args[0],null);
+		SproutGame g2 = (SproutGame) game.clone();
+		
+		boolean object,inner;
+		
+		object = game == g2;
+		inner = game.dotOccurances.toString().equals(g2.dotOccurances.toString());
+		System.out.println(game.regions.hashCode());
+		System.out.println(g2.regions.hashCode());
+		g2.regions.add(new Region());
+		System.out.println(game.regions.hashCode());
+		System.out.println(g2.regions.hashCode());
 	}
 	
 	//validates the input to the program (not done?)
@@ -134,5 +162,4 @@ public class SproutGame {
 		if(game[0]==null || game[0].isEmpty()) return false;
 		return true;
 	}
-
 }
