@@ -1,5 +1,8 @@
 package com.CSJE.Sprouts;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Responsible for checking the isomorphic properties of two game states in
  * Sprouts
@@ -89,7 +92,8 @@ public class IsoChecker {
 
 		for (int i = 0; i < leadCharCount; i++) {
 			int j = i;
-			while (!cn[j++].equals(leadChar)) {
+			while (!cn[j].equals(leadChar)) {
+				j++;
 				if (j == cn.length)
 					break;
 			}
@@ -100,7 +104,7 @@ public class IsoChecker {
 				for (int k = 0; k < j; k++)
 					shiftedChild[sci++] = cn[k];
 			}
-			if (nodeMatch(pn, shiftedChild))
+			if (nodeMatch(copyOf(pn), copyOf(shiftedChild)))
 				return true;
 		}
 
@@ -108,8 +112,50 @@ public class IsoChecker {
 	}
 
 	private static boolean nodeMatch(String[] pn, String[] cn) {
+		ArrayList<String> pnl = new ArrayList<String>();
+		ArrayList<String> cnl = new ArrayList<String>();
 
-		return false;
+		for (int i = 0; i < pn.length; i++) {
+			if (!pn[i].equals(cn[i])) {
+				pnl.add(pn[i]);
+				cnl.add(cn[i]);
+			}
+		}
+		if (pnl.size() == pn.length)
+			return false;
+		if(pnl.size() == 0) return true;
+
+		String source = pnl.get(0);
+		String target = cnl.get(0);
+		int targetCount = 0;
+
+		for (String s : pnl) {
+			if (s.equals(source))
+				s = target;
+			else if (s.equals(target)) {
+				s = source;
+				targetCount++;
+			}
+		}
+		if (targetCount == 0)
+			return false;
+
+		String[] np = new String[pnl.size()];
+		String[] nc = new String[cnl.size()];
+		for (int i = 0; i < pnl.size(); i++) {
+			np[i] = pnl.get(i);
+			nc[i] = cnl.get(i);
+		}
+		return nodeMatch(np, nc);
+	}
+
+	private static String[] copyOf(String[] s) {
+		String[] copy = new String[s.length];
+
+		for (int i = 0; i < s.length; i++)
+			copy[i] = new String(s[i]);
+
+		return copy;
 	}
 
 }
