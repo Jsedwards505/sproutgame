@@ -76,36 +76,55 @@ public class IsoChecker {
 		String pn[] = pb.split(",");
 		String cn[] = cb.split(",");
 		boolean matchFound = false;
+		String shiftedParent[] = pn.clone();
 		String shiftedChild[] = new String[cn.length];
 
 		if (pn.length != cn.length)
 			return false;
+		
+		if (pn.length == 1){
+			if(pn[0].equals(cn[0])) return true;
+			else return false;
+		}
 
 		// first, we need to shift the order of the child node array to start
 		// with the same node number as the parent. There could be up to three
-		// possible states, so we need to try all three
-		int leadCharCount = 0;
-		String leadChar = pn[0];
-		for (String c : pn)
-			if (c.equals(leadChar))
-				leadCharCount++;
+		// possible states, so we need to try all three. And we need to try this
+		// for every
 
-		for (int i = 0; i < leadCharCount; i++) {
-			int j = i;
-			while (!cn[j].equals(leadChar)) {
-				j++;
-				if (j == cn.length)
-					break;
-			}
-			int sci = 0;
-			for (int k = j; k < cn.length; k++)
-				shiftedChild[sci++] = cn[k];
-			if (j != 0) {
-				for (int k = 0; k < j; k++)
+		for (int p = 1; p < pn.length; p++) {
+			int leadCharCount = 0;
+			String leadChar = shiftedParent[0];
+			for (String c : shiftedParent)
+				if (c.equals(leadChar))
+					leadCharCount++;
+
+			for (int i = 0; i < leadCharCount; i++) {
+				int j = i;
+				while (!cn[j].equals(leadChar)) {
+					j++;
+					if (j == cn.length)
+						break;
+				}
+				int sci = 0;
+				for (int k = j; k < cn.length; k++)
 					shiftedChild[sci++] = cn[k];
+				if (j != 0) {
+					for (int k = 0; k < j; k++)
+						shiftedChild[sci++] = cn[k];
+				}
+				if (nodeMatch(copyOf(shiftedParent), copyOf(shiftedChild)))
+					return true;
 			}
-			if (nodeMatch(copyOf(pn), copyOf(shiftedChild)))
-				return true;
+			// shift the parent
+			int pci = 0;
+			for (int i = p; i < pn.length; i++) {
+				shiftedParent[pci++] = pn[i];
+			}
+			for (int k = 0; k < p; k++) {
+				shiftedParent[pci++] = pn[k];
+			}
+
 		}
 
 		return false;
@@ -123,20 +142,22 @@ public class IsoChecker {
 		}
 		if (pnl.size() == pn.length)
 			return false;
-		if(pnl.size() == 0) return true;
+		if (pnl.size() == 0)
+			return true;
 
 		String source = pnl.get(0);
 		String target = cnl.get(0);
 		int targetCount = 0;
 
-		for (String s : pnl) {
-			if (s.equals(source))
-				s = target;
-			else if (s.equals(target)) {
-				s = source;
+		for(int i = 0; i < pnl.size(); i++){
+			if(pnl.get(i).equals(source))
+					pnl.set(i, target);
+			else if (pnl.get(i).equals(target)){
+				pnl.set(i, source);
 				targetCount++;
 			}
 		}
+		
 		if (targetCount == 0)
 			return false;
 
