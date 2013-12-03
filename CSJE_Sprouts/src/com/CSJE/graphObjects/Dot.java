@@ -1,13 +1,17 @@
 package com.CSJE.graphObjects;
 
 public class Dot {
-	private char dotID;
-	public Dot(char dot)
+	private int dotID;
+	public Dot(int id)
 	{
-		dotID = dot;
+		dotID = id;
 	}
 	
-	public char getName() 
+	public Dot(Dot d) {
+		dotID = d.getID();
+	}
+
+	public int getID() 
 	{
 		return dotID;
 	}
