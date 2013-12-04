@@ -19,6 +19,7 @@ public class SproutGame {
 	private ArrayList<String> uniqueStates = new ArrayList<String>();
 	private Collector<Dot> dotOccurances = new Collector<Dot>();
 	private HashSet<Dot> freeDots = new HashSet<Dot>();
+	private int dotCount = 0;
 
 	public SproutGame(String game, SproutGame parent) {
 		this.parent = parent;
@@ -40,12 +41,18 @@ public class SproutGame {
 					// space to select every partner
 					for (Boundary b2 : r.getBoundaries()) {
 						for (Dot d2 : b2) {
-							String childString = makeChildString(r, b1, d1, b2,
-									d2);
-							// if this new gamestate is not an isomoprh, add it
-							// to children.
-							if ( isomorph(childString) == false )
-								children.add( new SproutGame( childString, this ) );
+
+							if (freeDots.contains(d1) && freeDots.contains(d2)) {
+								String childString = makeChildString(r, b1, d1,
+										b2, d2);
+								// if this new gamestate is not an isomoprh, add
+								// it
+								// to children.
+
+								if (isomorph(childString) == false)
+									children.add(new SproutGame(childString,
+											this));
+							}
 						}
 					}
 				}
@@ -54,16 +61,16 @@ public class SproutGame {
 	}
 
 	// Justin: WIP - do not use yet.
-	private boolean isomorph( String childString ) {
-		
-		//if a match is found, it's an isomorph to something we already have
-		for( String s : uniqueStates ){
-			if(IsoChecker.check( s, childString) == true )
+	private boolean isomorph(String childString) {
+
+		// if a match is found, it's an isomorph to something we already have
+		for (String s : uniqueStates) {
+			if (IsoChecker.check(s, childString) == true)
 				return true;
 		}
-		
-		//otherwise it is unique
-		uniqueStates.add( childString );
+
+		// otherwise it is unique
+		uniqueStates.add(childString);
 		return false;
 	}
 
@@ -76,16 +83,37 @@ public class SproutGame {
 	 */
 	private String makeChildString(Region r1, Boundary b1, Dot d1, Boundary b2,
 			Dot d2) {
+		LinkedList<Region> graph = new LinkedList<Region>(regions);
 		String childString = null;
-		// magic. Build the child strings.
+
 		if (b1 == b2) // if connecting dots in the same boundary
 		{
+			Region newR = new Region();
+			Boundary newB = new Boundary();
+			newB.setShell(true);
+			copyFromTo(b1, d1, d2, newB);
+
+			// more stuff need clarification
 
 		} else // connecting dots in another boundary.
 		{
+			Dot mid = new Dot(dotCount++);
 
 		}
 		return childString;
+	}
+
+	private void copyFromTo(Boundary b1, Dot d1, Dot d2, Boundary newB) {
+		boolean copy = false;
+		for (Dot d : b1) {
+			if (d == d1)
+				copy = true;
+			if (copy)
+				newB.addDot(new Dot(d.getID()));
+			if (d == d2)
+				return;
+		}
+
 	}
 
 	private void insertAfter(Boundary b, Dot insert, Dot after) {
@@ -115,10 +143,10 @@ public class SproutGame {
 			} else if (game.charAt(i) == ';') {
 				activeBoundary = new Boundary();
 				activeRegion.addBoundary(activeBoundary);
-			} else if (game.charAt(i) == ',')
+			} else if (game.charAt(i) == '-')
 				; // do nothing
 			else {
-				Dot d = new Dot(game.charAt(i));
+				Dot d = new Dot(dotCount++);
 				dotOccurances.add(d); // add new dot to tally
 				// add it to freedots
 				if (dotOccurances.getCount(d) < 3)
@@ -150,18 +178,11 @@ public class SproutGame {
 		}
 
 		SproutGame game = new SproutGame("A,B;C,D/E,F", null); // (args[0],null);
-		SproutGame g2 = (SproutGame) game.clone();
 
-		boolean object, inner;
+	}
 
-		object = game == g2;
-		inner = game.dotOccurances.toString().equals(
-				g2.dotOccurances.toString());
-		System.out.println(game.regions.hashCode());
-		System.out.println(g2.regions.hashCode());
-		g2.regions.add(new Region());
-		System.out.println(game.regions.hashCode());
-		System.out.println(g2.regions.hashCode());
+	public LinkedList<Region> getRegions() {
+		return regions;
 	}
 
 	// validates the input to the program (not done?)
