@@ -1,5 +1,6 @@
 package com.CSJE.Sprouts;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -15,6 +16,7 @@ public class SproutGame {
 
 	private LinkedList<Region> regions = new LinkedList<Region>();
 	private String stateString;
+	private ArrayList<String> uniqueStates = new ArrayList<String>();
 	private Collector<Dot> dotOccurances = new Collector<Dot>();
 	private HashSet<Dot> freeDots = new HashSet<Dot>();
 
@@ -42,8 +44,8 @@ public class SproutGame {
 									d2);
 							// if this new gamestate is not an isomoprh, add it
 							// to children.
-							if (!isomorph(childString))
-								children.add(new SproutGame(childString, this));
+							if ( isomorph(childString) == false )
+								children.add( new SproutGame( childString, this ) );
 						}
 					}
 				}
@@ -52,10 +54,17 @@ public class SproutGame {
 	}
 
 	// Justin: WIP - do not use yet.
-	private boolean isomorph(String childString) {
-		// determine if things are isomorphs in some clever way.
+	private boolean isomorph( String childString ) {
 		
-		return IsoChecker.check(stateString, childString);
+		//if a match is found, it's an isomorph to something we already have
+		for( String s : uniqueStates ){
+			if(IsoChecker.check( s, childString) == true )
+				return true;
+		}
+		
+		//otherwise it is unique
+		uniqueStates.add( childString );
+		return false;
 	}
 
 	/*
