@@ -17,7 +17,7 @@ public class SproutGame {
 
 	private LinkedList<Region> regions = new LinkedList<Region>();
 	private String stateString;
-	private static ArrayList<String> uniqueStates = new ArrayList<String>(); //Chris: Shouldn't this be static?
+	private static ArrayList<String> uniqueStates = new ArrayList<String>();
 	private Collector<Integer> dotOccurances = new Collector<Integer>();
 	private HashSet<Integer> freeDots = new HashSet<Integer>();
 	private int dotCount = 0;
@@ -72,11 +72,16 @@ public class SproutGame {
 								LinkedList<Region> childState;
 								if(b1==b2)
 									{
-									//generate boundaries to include and loop over the following.
-									childState = joinSameBoundary(r, b1, d1,d2);//TODO ,included boundaries,);
-							//		if (isomorph(childState.toString()) == false)
+									ArrayList<ArrayList<Boundary>> iboundaries = getIncludableBoundaryList(r, b1);
+									System.out.println("Includeable Boundaries: " + iboundaries.size());
+									for(ArrayList<Boundary> bs: iboundaries)
+									{
+									
+									childState = joinSameBoundary(r, b1, d1,d2,bs);
+									if (isomorph(childState.toString()) == false)
 										children.add(new SproutGame(childState,
 												this));
+									}
 									}
 								else
 								{
@@ -119,12 +124,6 @@ System.out.println("Unique Join " + d1.getID() + " to " + d2.getID());
 	 
 	 if(b1==null ||b2==null || d1==null || d2 == null) throw new Exception();    //if null blow up
 	 
-//	 add start b1 thorugh i
-//	 add k
-//	 add j through end b2
-//	 add b2 through j
-//	 add k
-//	 add i though end b1
 	 Boundary newB = new Boundary();
 	 
 	 //add start b1 though i
@@ -178,11 +177,13 @@ return graph;
 	 * over 17,16/17,10;4,7,12,33,12/1,2,3,4,5;1,3,4;22,17,9 This will make
 	 * isomorphism checks go faster. Thanks!
 	 */
-	private LinkedList<Region> joinSameBoundary(Region r, Boundary b, Dot d1,Dot d2) throws Exception {
+	private LinkedList<Region> joinSameBoundary(Region r, Boundary b, Dot d1,Dot d2,ArrayList<Boundary> iboundaries) throws Exception {
 		LinkedList<Region> graph = new LinkedList<Region>(regions);
+		graph.remove(r);
 		System.out.println("Join " + d1.getID() + " to " + d2.getID());
 	
 			Region newR = new Region(r); //duplicate parent region
+
 			System.out.println("GameState:"+r.toString());
 			
 			
@@ -215,7 +216,7 @@ return graph;
              d1 = b.get(d1index);
              d2 = b.get(d2index);
             
-            
+ 			newR.removeBoundary(b); //remove duplicate boundary.
             //generate the inner boundary.
             Boundary innerBoundary = new Boundary();
             innerBoundary.setShell(true);
@@ -233,8 +234,12 @@ return graph;
            
             //TODO: generate outer boundary
             
-            newR.addBoundary(innerBoundary);
-            graph.add(newR);
+
+            for(Boundary ib : iboundaries)
+            {
+            	if(ib!=null)newR.addBoundary(ib);
+            }
+          	graph.add(newR);
             System.out.println("child to produce: " + graph.toString());	
  
 			return graph;
@@ -293,7 +298,7 @@ return graph;
 			// return;
 		}
 		SproutGame game = new SproutGame("A");
-		System.out.println(game.regions.getFirst().toString());
+		
 
 	}
 	public boolean equals(SproutGame game)
@@ -337,7 +342,7 @@ return graph;
 		  int count = bList.size() -1;
 		  
 		  if(count > 0){//If there are actually includable boundaries
-		   double boundaryListCount = Math.pow(2, count);
+		   int boundaryListCount = (int) Math.pow(2, count);
 		   for(int i = 1; i <= boundaryListCount; i++){//for all boundary lists we need to create
 		    currentList = new ArrayList<Boundary>();
 		    int bitPattern = i;
@@ -351,7 +356,7 @@ return graph;
 		    masterList.add(currentList);
 		   }
 		  }
-		  
+		  masterList.add(new ArrayList<Boundary>()); // add the null case.
 		  return masterList;
 		 }
 
