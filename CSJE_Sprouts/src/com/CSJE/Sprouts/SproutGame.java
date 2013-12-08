@@ -69,15 +69,24 @@ public class SproutGame {
 						for (Dot d2 : b2) {
 
 							if (freeDots.contains(d1.getID()) && freeDots.contains(d2.getID())) {
-								LinkedList<Region> childState = makeChildString(r, b1, d1,
-										b2, d2);
+								LinkedList<Region> childState;
+								if(b1==b2)
+									{
+									//generate boundaries to include and loop over the following.
+									childState = joinSameBoundary(r, b1, d1,d2);//TODO ,included boundaries,);
+									if (isomorph(childState.toString()) == false)
+										children.add(new SproutGame(childState,
+												this));
+									}
+								else
+								{
+									childState = joinUniqueBoundary(r,b1,b2,d1,b2);
+								}
 								// if this new gamestate is not an isomoprh, add
 								// it
 								// to children.
 
-								if (isomorph(childState.toString()) == false)
-									children.add(new SproutGame(childState,
-											this));
+								
 							}
 						}
 					}
@@ -86,6 +95,11 @@ public class SproutGame {
 		}
 	}
 
+	private LinkedList<Region> joinUniqueBoundary(Region r, Boundary b1,
+			Boundary b2, Dot d1, Boundary b22) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	// Justin: WIP - do not use yet.
 	private boolean isomorph(String childString) {
 
@@ -107,27 +121,24 @@ public class SproutGame {
 	 * over 17,16/17,10;4,7,12,33,12/1,2,3,4,5;1,3,4;22,17,9 This will make
 	 * isomorphism checks go faster. Thanks!
 	 */
-	private LinkedList<Region> makeChildString(Region r1, Boundary b1, Dot d1, Boundary b2,
-			Dot d2) throws Exception {
+	private LinkedList<Region> joinSameBoundary(Region r, Boundary b, Dot d1,Dot d2) throws Exception {
 		LinkedList<Region> graph = new LinkedList<Region>(regions);
 		System.out.println("Join " + d1.getID() + " to " + d2.getID());
-
-		if (b1 == b2) // if connecting dots in the same boundary
-		{
-			
-			Region newR = new Region(r1); //duplicate parent region
-			System.out.println("GameState:"+r1.toString());
+	
+			Region newR = new Region(r); //duplicate parent region
+			System.out.println("GameState:"+r.toString());
 			
 			
 			 int d2index,d1index;
-	            d2index = b1.indexOf(d2);
-	            d1index = b1.indexOf(d1);
-			//find the same boundary in the duplicate
-            b1 = newR.getBoundary(d1index);
-            b2 = b1;
+	            d2index = b.indexOf(d2);
+	            d1index = b.indexOf(d1);
+			
+	        //find the same boundary in the duplicate
+            b = newR.getBoundary(d1index);
+            
   
             //if null blow up
-            if(b1==null) throw new Exception();
+            if(b==null) throw new Exception();
                         
            
 
@@ -147,8 +158,8 @@ public class SproutGame {
             }
             
             //find the same dots
-             d1 = selectEqualDot(d1,b1);
-             d2 = selectEqualDot(d2,b2);
+             d1 = selectEqualDot(d1,b);
+             d2 = selectEqualDot(d2,b);
             
             
             //generate the inner boundary.
@@ -161,25 +172,18 @@ public class SproutGame {
             //copy from j through i
             for(int i=d2index-1;i>d1index;i--)
             {
-            	innerBoundary.addDot(b1.get(i));
+            	innerBoundary.addDot(b.get(i));
             }
             newR.addBoundary(innerBoundary);
-            System.out.println("New Boundary:" +innerBoundary.toString());
+   
            
             //TODO: generate outer boundary
             
             newR.addBoundary(innerBoundary);
             graph.add(newR);
             System.out.println("child to produce: " + graph.toString());	
-
-		} 
-		else // connecting dots in another boundary.
-		{
-//			Dot mid = new Dot(dotCount++);
-
-		}
-		
-		return graph;
+ 
+			return graph;
 	}
 
 	private Dot selectEqualDot(Dot dot, Boundary b) {
