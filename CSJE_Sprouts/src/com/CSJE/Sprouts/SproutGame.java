@@ -1,6 +1,7 @@
 package com.CSJE.Sprouts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -16,19 +17,44 @@ public class SproutGame {
 
 	private LinkedList<Region> regions = new LinkedList<Region>();
 	private String stateString;
-	private ArrayList<String> uniqueStates = new ArrayList<String>();
-	private Collector<Dot> dotOccurances = new Collector<Dot>();
-	private HashSet<Dot> freeDots = new HashSet<Dot>();
+	private static ArrayList<String> uniqueStates = new ArrayList<String>(); //Chris: Shouldn't this be static?
+	private Collector<Integer> dotOccurances = new Collector<Integer>();
+	private HashSet<Integer> freeDots = new HashSet<Integer>();
 	private int dotCount = 0;
 
-	public SproutGame(String game, SproutGame parent) {
-		this.parent = parent;
+	public SproutGame(String game) throws Exception {
+		this.parent = null;
 		stateString = game;
 		buildState(game);
-		// generateChildren();
+	    generateChildren();
 	}
+	public SproutGame(LinkedList<Region>regions, SproutGame parent) throws Exception
+	{
+		this.parent = parent;
+		this.regions = regions;
+		stateString = regions.toString();
+		populateStructures();
+		generateChildren();	
+	}
+	private void populateStructures() {
+		for(Region r : regions)
+		{
+			for(Boundary b : r)
+			{
+				for(Dot d : b)
+				{
+					dotOccurances.add(d.getID());
+					if(dotOccurances.getCount(d.getID())>2) freeDots.remove(d.getID());
+					else freeDots.add(d.getID());
+				}
+			}
+		}	
+	}
+	
+	
 
-	private void generateChildren() {
+
+	private void generateChildren() throws Exception {
 		// This method will use the rules of the game to create possible
 		// children states
 
@@ -42,15 +68,15 @@ public class SproutGame {
 					for (Boundary b2 : r.getBoundaries()) {
 						for (Dot d2 : b2) {
 
-							if (freeDots.contains(d1) && freeDots.contains(d2)) {
-								String childString = makeChildString(r, b1, d1,
+							if (freeDots.contains(d1.getID()) && freeDots.contains(d2.getID())) {
+								LinkedList<Region> childState = makeChildString(r, b1, d1,
 										b2, d2);
 								// if this new gamestate is not an isomoprh, add
 								// it
 								// to children.
 
-								if (isomorph(childString) == false)
-									children.add(new SproutGame(childString,
+								if (isomorph(childState.toString()) == false)
+									children.add(new SproutGame(childState,
 											this));
 							}
 						}
@@ -81,59 +107,101 @@ public class SproutGame {
 	 * over 17,16/17,10;4,7,12,33,12/1,2,3,4,5;1,3,4;22,17,9 This will make
 	 * isomorphism checks go faster. Thanks!
 	 */
-	private String makeChildString(Region r1, Boundary b1, Dot d1, Boundary b2,
-			Dot d2) {
+	private LinkedList<Region> makeChildString(Region r1, Boundary b1, Dot d1, Boundary b2,
+			Dot d2) throws Exception {
 		LinkedList<Region> graph = new LinkedList<Region>(regions);
-		String childString = null;
+		System.out.println("Join " + d1.getID() + " to " + d2.getID());
 
 		if (b1 == b2) // if connecting dots in the same boundary
 		{
-			Region newR = new Region();
-			Boundary newB = new Boundary();
-			newB.setShell(true);
-			copyFromTo(b1, d1, d2, newB);
+			
+			Region newR = new Region(r1); //duplicate parent region
+			System.out.println("GameState:"+r1.toString());
+			
+			
+			 int d2index,d1index;
+	            d2index = b1.indexOf(d2);
+	            d1index = b1.indexOf(d1);
+			//find the same boundary in the duplicate
+            b1 = newR.getBoundary(d1index);
+            b2 = b1;
+  
+            //if null blow up
+            if(b1==null) throw new Exception();
+                        
+           
 
-			// more stuff need clarification
+            //if d1 further in list than d2 swap them.
+            if(d1index>d2index)
+            {
+            	//
+            	int swap;
+            	swap = d1index;
+            	d1index = d2index;
+            	d2index = swap ;
+            	
+            	Dot dSwap;
+            	dSwap = d1;
+            	d1 = d2;
+            	d2 = dSwap;
+            }
+            
+            //find the same dots
+             d1 = selectEqualDot(d1,b1);
+             d2 = selectEqualDot(d2,b2);
+            
+            
+            //generate the inner boundary.
+            Boundary innerBoundary = new Boundary();
+            innerBoundary.setShell(true);
+            innerBoundary.addDot(d1); //add i
+            innerBoundary.addDot(new Dot(dotCount)); //add k
+            innerBoundary.addDot(d2); //add j
+          
+            //copy from j through i
+            for(int i=d2index-1;i>d1index;i--)
+            {
+            	innerBoundary.addDot(b1.get(i));
+            }
+            newR.addBoundary(innerBoundary);
+            System.out.println("New Boundary:" +innerBoundary.toString());
+           
+            //TODO: generate outer boundary
+            
+            newR.addBoundary(innerBoundary);
+            graph.add(newR);
+            System.out.println("child to produce: " + graph.toString());	
 
-		} else // connecting dots in another boundary.
+		} 
+		else // connecting dots in another boundary.
 		{
-			Dot mid = new Dot(dotCount++);
+//			Dot mid = new Dot(dotCount++);
 
 		}
-		return childString;
+		
+		return graph;
 	}
 
-	private void copyFromTo(Boundary b1, Dot d1, Dot d2, Boundary newB) {
-		boolean copy = false;
-		for (Dot d : b1) {
-			if (d == d1)
-				copy = true;
-			if (copy)
-				newB.addDot(new Dot(d.getID()));
-			if (d == d2)
-				return;
+	private Dot selectEqualDot(Dot dot, Boundary b) {
+		for(Dot d : b)
+		{
+			if(d.equals(dot)) return d;
 		}
-
+		return null;
 	}
 
-	private void insertAfter(Boundary b, Dot insert, Dot after) {
-		for (int i = 0; i < b.getLength(); i++) {
-			if (b.get(i) == after) {
-				b.insert(i, insert);
-			}
 
-		}
-	}
+
+
 
 	// parses string input into objects
 	private void buildState(String game) {
 
 		Region activeRegion = new Region();
 		Boundary activeBoundary = new Boundary();
-
+		HashMap<Character,Integer> dotMap = new HashMap<Character,Integer>();
 		activeRegion.addBoundary(activeBoundary);
 		regions.add(activeRegion);
-
 		for (int i = 0; i < game.length(); i++) {
 			if (game.charAt(i) == '/') {
 				activeRegion = new Region();
@@ -146,29 +214,37 @@ public class SproutGame {
 			} else if (game.charAt(i) == '-')
 				; // do nothing
 			else {
-				Dot d = new Dot(dotCount++);
-				dotOccurances.add(d); // add new dot to tally
-				// add it to freedots
-				if (dotOccurances.getCount(d) < 3)
-					freeDots.add(d);
+				if(dotMap.containsKey(game.charAt(i)))
+				{
+					int id = dotMap.get(game.charAt(i));
+				
+					dotOccurances.add(id);
+					activeBoundary.addDot(new Dot(id));
+					if (dotOccurances.getCount(id) > 2) freeDots.remove(id);
+				}
 				else
-					freeDots.remove(d); // unless it's full.
+				{
+        		Dot d = new Dot(dotCount++);
+        		dotMap.put(game.charAt(i), d.getID());
+				dotOccurances.add(d.getID());
+				freeDots.add(d.getID());
 				activeBoundary.addDot(d);
 			}
 		}
+		}
 	}
 
-	public String toString() {
-		return stateString;
+	//public String toString() {
+//		return stateString;
 
-	}
+//	}
 
 	/**
-	 * @param args
-	 *            - String defining a game state.
-	 * @throws CloneNotSupportedException
+	 * @param args - String defining a game state.
+	 * @throws Exception 
+	 * 
 	 */
-	public static void main(String[] args) throws CloneNotSupportedException {
+	public static void main(String[] args) throws Exception {
 		// This method will validate the args and build a new SproutsGame object
 		// with those arguments.
 		if (!validGame(args)) // if the input is invalid, blow up.
@@ -176,9 +252,14 @@ public class SproutGame {
 			System.out.println("Invalid Input");
 			// return;
 		}
+		SproutGame game = new SproutGame("A-B-C");
+		System.out.println(game.regions.getFirst().toString());
 
-		SproutGame game = new SproutGame("A,B;C,D/E,F", null); // (args[0],null);
-
+	}
+	public boolean equals(SproutGame game)
+	{
+		return game.toString().equals(this.toString());
+		
 	}
 
 	public LinkedList<Region> getRegions() {
@@ -192,5 +273,16 @@ public class SproutGame {
 		if (game[0] == null || game[0].isEmpty())
 			return false;
 		return true;
+	}
+	@Override
+	public String toString()
+	{
+		String str = null;
+		for(Region r : regions)
+		{
+			if(str==null)str=r.toString();
+			else str = str +"/"+r.toString();
+		}
+		return str;
 	}
 }
