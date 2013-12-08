@@ -24,6 +24,13 @@ public class IsoChecker {
 	 *         if not
 	 */
 	public static boolean check(String parent, String child) {
+		
+		//First check for cross-region node switching
+		String parentCopy[] = parent.split("/|;|,");
+		String childCopy[] = child.split("/|;|,");
+		
+		if(shiftMatching(parentCopy, childCopy) == true) return true;
+	
 
 		String pr[] = parent.split("/");
 		String cr[] = child.split("/");
@@ -75,17 +82,23 @@ public class IsoChecker {
 	private static boolean boundaryMatch(String pb, String cb) {
 		String pn[] = pb.split(",");
 		String cn[] = cb.split(",");
-		boolean matchFound = false;
-		String shiftedParent[] = pn.clone();
-		String shiftedChild[] = new String[cn.length];
 
 		if (pn.length != cn.length)
 			return false;
-		
-		if (pn.length == 1){
-			if(pn[0].equals(cn[0])) return true;
-			else return false;
+
+		if (pn.length == 1) {
+			if (pn[0].equals(cn[0]))
+				return true;
+			else
+				return false;
 		}
+
+		return shiftMatching(pn, cn);
+	}
+
+	private static boolean shiftMatching(String[] pn, String[] cn) {
+		String shiftedParent[] = pn.clone();
+		String shiftedChild[] = new String[cn.length];
 
 		// first, we need to shift the order of the child node array to start
 		// with the same node number as the parent. There could be up to three
@@ -128,6 +141,7 @@ public class IsoChecker {
 		}
 
 		return false;
+
 	}
 
 	private static boolean nodeMatch(String[] pn, String[] cn) {
@@ -149,15 +163,15 @@ public class IsoChecker {
 		String target = cnl.get(0);
 		int targetCount = 0;
 
-		for(int i = 0; i < pnl.size(); i++){
-			if(pnl.get(i).equals(source))
-					pnl.set(i, target);
-			else if (pnl.get(i).equals(target)){
+		for (int i = 0; i < pnl.size(); i++) {
+			if (pnl.get(i).equals(source))
+				pnl.set(i, target);
+			else if (pnl.get(i).equals(target)) {
 				pnl.set(i, source);
 				targetCount++;
 			}
 		}
-		
+
 		if (targetCount == 0)
 			return false;
 

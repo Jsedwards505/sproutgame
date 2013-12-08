@@ -11,6 +11,11 @@ public class IsoCheckerTest {
 	String pos2 = "7/10,11,8;9,8,5,6;2,4/7;5;1,2,3,4"; //iso to 1
 	String pos3 = "7/10,11,8;9,8,5,6;2,4/7;5;3,2,1,4"; //iso to 1
 	String pos4 = "7/10,11,8;9,8,5,6;2,4/7;5;3,2,1,7"; //non-iso
+	
+	String pos5 = "1,4;2/3";
+	String pos6 = "1,4;3/2";
+	
+	
 
 	@Before
 	public void setUp() throws Exception {
@@ -29,6 +34,8 @@ public class IsoCheckerTest {
 		assertTrue(IsoChecker.check(pos3, pos2));
 		
 		assertFalse(IsoChecker.check(pos1, pos4));
+		
+		assertTrue(IsoChecker.check(pos5, pos6));
 	}
 
 }
