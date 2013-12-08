@@ -74,13 +74,13 @@ public class SproutGame {
 									{
 									//generate boundaries to include and loop over the following.
 									childState = joinSameBoundary(r, b1, d1,d2);//TODO ,included boundaries,);
-									if (isomorph(childState.toString()) == false)
+							//		if (isomorph(childState.toString()) == false)
 										children.add(new SproutGame(childState,
 												this));
 									}
 								else
 								{
-									childState = joinUniqueBoundary(r,b1,b2,d1,b2);
+									childState = joinUniqueBoundary(r,b1,b2,d1,d2);
 								}
 								// if this new gamestate is not an isomoprh, add
 								// it
@@ -96,9 +96,66 @@ public class SproutGame {
 	}
 
 	private LinkedList<Region> joinUniqueBoundary(Region r, Boundary b1,
-			Boundary b2, Dot d1, Boundary b22) {
-		// TODO Auto-generated method stub
-		return null;
+			Boundary b2, Dot d1,Dot d2) throws Exception {
+LinkedList<Region> graph = new LinkedList<Region>(regions);
+graph.remove(r);
+System.out.println("Unique Join " + d1.getID() + " to " + d2.getID());
+
+	Region newR = new Region(r); //duplicate parent region
+	System.out.println("GameState:"+r.toString());
+	 
+	//get dot and boundary indicies
+	 int d2index,d1index,b1index,b2index;
+	 d1index = b1.indexOf(d1);   
+	 d2index = b2.indexOf(d2);
+	 b1index = r.indexOf(b1);
+	 b2index= r.indexOf(b2);
+	 
+	 //point b1,b2,d1,d2 at duplicate
+	 b1 = newR.getBoundary(b1index);
+	 b2 = newR.getBoundary(b2index);
+	 d1 = b1.get(d1index);
+	 d2 = b2.get(d2index);
+	 
+	 if(b1==null ||b2==null || d1==null || d2 == null) throw new Exception();    //if null blow up
+	 
+//	 add start b1 thorugh i
+//	 add k
+//	 add j through end b2
+//	 add b2 through j
+//	 add k
+//	 add i though end b1
+	 Boundary newB = new Boundary();
+	 
+	 //add start b1 though i
+	 for(int i = 0; i<d1index+1; i++)
+	 {
+		 newB.addDot(b1.get(i));
+	 }
+	 newB.addDot(new Dot(dotCount+1));	 //add k
+
+     //add j through end b2
+     for(int i = d2index; i<b2.size(); i++)
+     {
+    	 newB.addDot(b2.get(i));	 
+     }
+//	 add b2 through j
+     for(int i = 0; i<d2index+1; i++)
+     {
+    	 newB.addDot(b2.get(i));
+     }
+     newB.addDot(new Dot(dotCount+1));	 //add k
+     for(int i=d1index; i<b1.size(); i++)
+     {
+    	 newB.addDot(b1.get(i));
+     }
+      newR.removeBoundary(b1);
+      newR.removeBoundary(b2);
+      newR.addBoundary(newB);
+      graph.add(newR);
+	    
+		
+return graph;
 	}
 	// Justin: WIP - do not use yet.
 	private boolean isomorph(String childString) {
@@ -129,19 +186,15 @@ public class SproutGame {
 			System.out.println("GameState:"+r.toString());
 			
 			
-			 int d2index,d1index;
+			
+			 int bindex,d2index,d1index;
+			    bindex = r.indexOf(b);
 	            d2index = b.indexOf(d2);
 	            d1index = b.indexOf(d1);
 			
-	        //find the same boundary in the duplicate
-            b = newR.getBoundary(d1index);
-            
-  
-            //if null blow up
-            if(b==null) throw new Exception();
+	        //if null blow up
+            if(b==null||d1==null||d2==null) throw new Exception();
                         
-           
-
             //if d1 further in list than d2 swap them.
             if(d1index>d2index)
             {
@@ -157,9 +210,10 @@ public class SproutGame {
             	d2 = dSwap;
             }
             
-            //find the same dots
-             d1 = selectEqualDot(d1,b);
-             d2 = selectEqualDot(d2,b);
+            //find the same dots and boundary
+             b  = newR.getBoundary(bindex);
+             d1 = b.get(d1index);
+             d2 = b.get(d2index);
             
             
             //generate the inner boundary.
@@ -185,18 +239,6 @@ public class SproutGame {
  
 			return graph;
 	}
-
-	private Dot selectEqualDot(Dot dot, Boundary b) {
-		for(Dot d : b)
-		{
-			if(d.equals(dot)) return d;
-		}
-		return null;
-	}
-
-
-
-
 
 	// parses string input into objects
 	private void buildState(String game) {
@@ -237,12 +279,6 @@ public class SproutGame {
 		}
 		}
 	}
-
-	//public String toString() {
-//		return stateString;
-
-//	}
-
 	/**
 	 * @param args - String defining a game state.
 	 * @throws Exception 
@@ -256,7 +292,7 @@ public class SproutGame {
 			System.out.println("Invalid Input");
 			// return;
 		}
-		SproutGame game = new SproutGame("A-B-C");
+		SproutGame game = new SproutGame("A");
 		System.out.println(game.regions.getFirst().toString());
 
 	}
@@ -289,4 +325,34 @@ public class SproutGame {
 		}
 		return str;
 	}
+	private ArrayList<ArrayList<Boundary>> getIncludableBoundaryList(Region r, Boundary b){
+		  
+		  final int maxBoundaries = 100; //We are only including up to 100 boundaries for efficiency
+		  ArrayList<ArrayList<Boundary>> masterList = new ArrayList<ArrayList<Boundary>>();
+		  ArrayList<Boundary> currentList = null;
+		  
+		  
+		  //determine how many boundary lists we need
+		  LinkedList<Boundary> bList = r.getBoundaries();
+		  int count = bList.size() -1;
+		  
+		  if(count > 0){//If there are actually includable boundaries
+		   double boundaryListCount = Math.pow(2, count);
+		   for(int i = 1; i <= boundaryListCount; i++){//for all boundary lists we need to create
+		    currentList = new ArrayList<Boundary>();
+		    int bitPattern = i;
+		    for(int j = 0; j < count; j++){//And for all includable boundaries to add to each list
+		     if((bitPattern & 0x1) == 1){//we're gonna do a bit check to see whether we are including
+		      if(bList.get(j) != b)
+		       currentList.add(bList.get(j));
+		     }
+		     bitPattern = bitPattern >> 1;
+		    }
+		    masterList.add(currentList);
+		   }
+		  }
+		  
+		  return masterList;
+		 }
+
 }

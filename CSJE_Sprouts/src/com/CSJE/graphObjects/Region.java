@@ -50,6 +50,15 @@ public class Region implements Iterable<Boundary> {
 	   {
 		   return boundaries.get(index);
 	   }
+
+	public int indexOf(Boundary b2) {
+		return boundaries.indexOf(b2);
+		
+	}
+	public void removeBoundary(Boundary b)
+	{
+		boundaries.remove(b);
+	}
 	   
 
 }

@@ -63,5 +63,8 @@ public class Boundary implements Iterable<Dot> {
 		
 		return str;
 	}
+	public int size() {
+	return dots.size();
+	}
 
 }
