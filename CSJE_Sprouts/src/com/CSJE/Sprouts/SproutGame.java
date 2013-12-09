@@ -463,6 +463,9 @@ return graph;
 			return;
 		}
 		SproutGame game = new SproutGame(args[0]);
-		System.out.println("Number of nodes is:" + nodeCount + "  is winnable?  " + game.isWin());
+		String winner;
+		if(game.isWin()) winner = "First Player";
+		else winner = "Second Player";
+		System.out.println("Number of nodes is:" + nodeCount + "  Winner?  " + winner);
 	}
 }
