@@ -59,6 +59,12 @@ public class Region implements Iterable<Boundary> {
 	{
 		boundaries.remove(b);
 	}
+	
+	public int getLength()
+	{
+		return boundaries.size();
+	}
+	
 	   
 
 }

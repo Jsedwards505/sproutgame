@@ -16,4 +16,8 @@ public class Collector<T> {
 		if(!collection.containsKey(o)) collection.put(o, new Integer(1));
 		else collection.put(o, collection.get(o).intValue()+1);
 	}
+	public boolean contains(T o) {
+		
+		return collection.containsKey(o);
+	}
 }
